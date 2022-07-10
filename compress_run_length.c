@@ -9,6 +9,8 @@
 
 #include "compress_run_length.h"
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 /**
@@ -31,11 +33,11 @@ cprs_runLength_privateVariable cprs_rl_p;
  * @retval true if successful
  * @retval false otherwise
  */
-bool cprs_runLengthEncoding_init(uint8_t * data_smpl)
+bool cprs_runLength_init( size_t data_size)
 {
+	cprs_rl_p.element = (uint8_t*)calloc(data_size, sizeof(uint8_t));
+	cprs_rl_p.freq = (uint8_t*)calloc(data_size, sizeof(uint8_t));
 
-	cprs_rl_p.element = NULL;
-	cprs_rl_p.freq = NULL;
 	return (true);
 }
 
@@ -45,6 +47,7 @@ bool cprs_runLengthEncoding_init(uint8_t * data_smpl)
 static inline size_t crps_runLength_encode_makeSymbolArray(const uint8_t * data_ptr, const size_t data_size)
 {
 	static uint8_t symbol_index = 0;
+	printf("compressed data size: %d", symbol_index);
 
 	for (uint8_t i = 0; i < data_size; i++)
 	{
@@ -86,6 +89,7 @@ static inline size_t crps_runLength_encode_makeFreqArray(const uint8_t * data_pt
 static inline bool crps_runLength_shuffleSymbolAndFreq(uint8_t * data_ptr, size_t data_size)
 {
 	uint8_t half_data_size = data_size / 2;
+	data_ptr = NULL;
 	for(uint8_t i = 0; i < half_data_size ; i++)
 	{
 		uint8_t index_Symbol = i *2;
@@ -124,3 +128,11 @@ bool cprs_runLength_decode(uint8_t * data_ptr)
 {
 	return false;
 }
+
+bool cprs_runLength_deinit()
+{
+	free(cprs_rl_p.element);
+	free(cprs_rl_p.freq);
+	return true;
+}
+

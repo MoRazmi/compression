@@ -6,6 +6,8 @@
  */
 #include <stdio.h>
 #include <stddef.h>
+#include <assert.h>
+
 #include "compress_run_length.h"
 
 int main()
@@ -16,10 +18,14 @@ int main()
 
 	size_t data_size = 24;
 
-	for (int i = 0; i < data_size; i++)
-	{
-		printf("index %d is 0x%02X \n", i, data_ptr[i]);
-	}
+	bool ini_state = cprs_runLength_init(data_size);
+	assert(ini_state);
+
+
 	printf("Let's start the interview\n");
+
+	bool deini_state = cprs_runLength_deinit();
+	assert(deini_state);
+
 	return 0;
 }
