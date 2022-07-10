@@ -64,12 +64,7 @@ static inline size_t crps_runLength_encode_makeSymbolArray(const uint8_t * data_
 
 		cprs_rl_p.freq[pre_symbol_index]++;
 	}
-/*
-	for(int i =0; i < symbol_index; i++)
-	{
-	    printf("current symbol frequeny 0x%02X and 0x%02X \n", cprs_rl_p.freq[i],cprs_rl_p.symbol[i] );
-	}
-*/
+
 	return symbol_index;
 }
 
@@ -85,12 +80,43 @@ static inline size_t crps_runLength_encode_makeSymbolArray(const uint8_t * data_
 		data_ptr[i*2] = cprs_rl_p.freq[i];
 		data_ptr[i*2+1] = cprs_rl_p.symbol[i];
 	}
-	for(int i =0; i < data_size; i++)
-	{
-	    printf("current data 0x%02X \n", data_ptr[i] );
-	}
 
 	return true;
+}
+
+/**
+ * @brief static inline helper to extract symbol and frequency
+ */
+static inline bool crps_runLength_decode_distSymbolArray( uint8_t * data_ptr, size_t data_size)
+{
+	for(uint8_t i = 0; i < data_size; i++ )
+	{
+		if(i%2 == 0)
+		{
+			cprs_rl_p.freq[i / 2] = data_ptr[i];
+		}
+		else if (i%2 == 1)
+		{
+			cprs_rl_p.symbol[i / 2] = data_ptr[i];
+		}
+	}
+	return true;
+}
+
+uint8_t crps_runLength_decode_recreateBuffer( uint8_t * data_ptr,size_t  data_size)
+{
+	uint8_t new_size = 0;
+	uint8_t half_size = data_size /2;
+	for(uint8_t i = 0; i < half_size; i ++)
+	{
+		for(uint8_t j = 0; j < cprs_rl_p.freq[i]; j++ )
+		{
+			data_ptr[new_size] = cprs_rl_p.symbol[i];
+			new_size++;
+		}
+
+	}
+	return new_size;
 }
 
 /**
@@ -105,15 +131,20 @@ size_t cprs_runLength_encode(uint8_t * data_ptr, size_t data_size)
 	data_size = symbol_num * 2;
 	(void)crps_runLength_shuffleSymbolAndFreq( data_ptr, data_size);
 
+
 	return data_size;
 }
 
 /**
  * Run-Length algorithm decode data
  */
-bool cprs_runLength_decode(uint8_t * data_ptr)
+size_t cprs_runLength_decode(uint8_t * data_ptr, size_t data_size)
 {
-	return false;
+	uint8_t new_data;
+	(void)crps_runLength_decode_distSymbolArray( data_ptr,  data_size);
+	new_data =crps_runLength_decode_recreateBuffer(data_ptr,  data_size);
+
+	return new_data;
 }
 
 bool cprs_runLength_deinit()
