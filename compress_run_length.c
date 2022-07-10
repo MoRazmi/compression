@@ -42,7 +42,7 @@ bool cprs_runLength_init( size_t data_size)
 }
 
 /**
- * @brief static inline helper to create the symbol array
+ * @brief static inline helper to create the symbol array and calculate the frequency
  */
 static inline size_t crps_runLength_encode_makeSymbolArray(const uint8_t * data_ptr, const size_t data_size)
 {
@@ -62,38 +62,16 @@ static inline size_t crps_runLength_encode_makeSymbolArray(const uint8_t * data_
 		    pre_symbol_index = symbol_index;
 		    symbol_index++;
 		}
+
+		cprs_rl_p.freq[pre_symbol_index]++;
 	}
-
-	return symbol_index;
-}
-
-/**
- * @brief static inline helper to create frequency of each symbol
- */
-static inline size_t crps_runLength_encode_makeFreqArray(const uint8_t * data_ptr, const size_t data_size)
-{
-	static uint8_t freq_index = 1;
-
-	for(uint8_t i = 0; i < data_size; i++)
+	for(int i =0; i < symbol_index; i++)
 	{
-		if( cprs_rl_p.symbol[freq_index] == data_ptr[i] )
-		{
-			cprs_rl_p.freq[freq_index]++;
-            printf("current data_ptr 0x%02X  \n",  data_ptr[i] );
-
-		}
-		else
-		{
-
-		cprs_rl_p.freq[freq_index] = 1;
-//		printf("current symbol frequeny %d \n", cprs_rl_p.freq[freq_index]);
-
-		freq_index++;
-		}
-
+	    printf("current symbol frequeny 0x%02X and 0x%02X \n", cprs_rl_p.freq[i],cprs_rl_p.symbol[i] );
 	}
 
-	return freq_index-1;
+	printf("current size %d", symbol_index * 2);
+	return symbol_index;
 }
 
 /**
@@ -125,13 +103,9 @@ size_t cprs_runLength_encode(uint8_t * data_ptr, size_t data_size)
 {
 
 	uint8_t symbol_num = crps_runLength_encode_makeSymbolArray( data_ptr,  data_size);
-	uint8_t freq_num   = crps_runLength_encode_makeFreqArray( data_ptr, data_size);
-/*
-	assert(symbol_num != freq_num);
-
-	data_size = symbol_num + freq_num;
+	size_t data_size = symbol_num * 2;
 	(void)crps_runLength_shuffleSymbolAndFreq(data_ptr, data_size);
-*/
+
 	return data_size;
 }
 
