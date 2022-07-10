@@ -25,9 +25,11 @@ int main()
 	bool ini_state = cprs_runLength_init(data_size);
 	assert(ini_state);
 
-	cprs_runLength_encode(data_ptr, data_size);
+	size_t new_encode_size;
+	new_encode_size = cprs_runLength_encode(data_ptr, data_size);
+	data_size = new_encode_size;
 
-	for(int i =0; i < 20; i++)
+	for(int i =0; i < data_size; i++)
 	{
 	    printf(" data after compression encode 0x%02X \n", data_ptr[i] );
 	}
@@ -43,9 +45,14 @@ int main()
 	bool reini_state = cprs_runLength_init(data_size);
     assert(reini_state);
 
-    cprs_runLength_decode(data_ptr, 20);
+    size_t new_decoded_size;
 
-    for(int i =0; i < 24; i++)
+    new_decoded_size = cprs_runLength_decode(data_ptr, data_size);
+	data_size = new_decoded_size;
+    printf(" data size %ld \n", data_size );
+
+
+    for(int i =0; i < data_size; i++)
 	{
 	    printf(" data after compression deccode 0x%02X \n", data_ptr[i] );
 	}
