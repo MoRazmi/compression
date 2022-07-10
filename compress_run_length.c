@@ -18,7 +18,7 @@
  */
 typedef struct _cprs_runLength_privateVariable
 {
-	uint8_t *element;
+	uint8_t *symbol;
 	uint8_t *freq;
 }cprs_runLength_privateVariable;
 
@@ -35,7 +35,7 @@ cprs_runLength_privateVariable cprs_rl_p;
  */
 bool cprs_runLength_init( size_t data_size)
 {
-	cprs_rl_p.element = (uint8_t*)calloc(data_size, sizeof(uint8_t));
+	cprs_rl_p.symbol = (uint8_t*)calloc(data_size, sizeof(uint8_t));
 	cprs_rl_p.freq = (uint8_t*)calloc(data_size, sizeof(uint8_t));
 
 	return (true);
@@ -46,21 +46,24 @@ bool cprs_runLength_init( size_t data_size)
  */
 static inline size_t crps_runLength_encode_makeSymbolArray(const uint8_t * data_ptr, const size_t data_size)
 {
-	static uint8_t symbol_index = 0;
-	printf("compressed data size: %d", symbol_index);
+	 uint8_t symbol_index = 0;
+	 uint8_t pre_symbol_index = 0;
 
 	for (uint8_t i = 0; i < data_size; i++)
 	{
-		if(data_ptr[i] != cprs_rl_p.element[symbol_index])
+		if(i == 0)
 		{
-		     cprs_rl_p.element[symbol_index] = data_ptr[i];
-		     symbol_index++;
+			cprs_rl_p.symbol[symbol_index] = data_ptr[i];
+			symbol_index++;
 		}
-		else
+		else if( cprs_rl_p.symbol[pre_symbol_index] != data_ptr[i] )
 		{
-			cprs_rl_p.element[symbol_index]++;
+		    cprs_rl_p.symbol[symbol_index] = data_ptr[i];
+		    pre_symbol_index = symbol_index;
+		    symbol_index++;
 		}
 	}
+
 	return symbol_index;
 }
 
@@ -69,15 +72,25 @@ static inline size_t crps_runLength_encode_makeSymbolArray(const uint8_t * data_
  */
 static inline size_t crps_runLength_encode_makeFreqArray(const uint8_t * data_ptr, const size_t data_size)
 {
-	static uint8_t freq_index = 0;
+	static uint8_t freq_index = 1;
 
 	for(uint8_t i = 0; i < data_size; i++)
 	{
-		while(data_ptr[i] == cprs_rl_p.element[freq_index])
+		if( cprs_rl_p.symbol[freq_index] == data_ptr[i] )
 		{
 			cprs_rl_p.freq[freq_index]++;
+            printf("current data_ptr 0x%02X  \n",  data_ptr[i] );
+
 		}
-		cprs_rl_p.freq[freq_index++] = 1;
+		else
+		{
+
+		cprs_rl_p.freq[freq_index] = 1;
+//		printf("current symbol frequeny %d \n", cprs_rl_p.freq[freq_index]);
+
+		freq_index++;
+		}
+
 	}
 
 	return freq_index-1;
@@ -93,7 +106,7 @@ static inline bool crps_runLength_shuffleSymbolAndFreq(uint8_t * data_ptr, size_
 	for(uint8_t i = 0; i < half_data_size ; i++)
 	{
 		uint8_t index_Symbol = i *2;
-		data_ptr[index_Symbol] = cprs_rl_p.element[i];
+		data_ptr[index_Symbol] = cprs_rl_p.symbol[i];
 	}
 	for (uint8_t i = 0; i < half_data_size; i++)
 	{
@@ -110,14 +123,15 @@ static inline bool crps_runLength_shuffleSymbolAndFreq(uint8_t * data_ptr, size_
  */
 size_t cprs_runLength_encode(uint8_t * data_ptr, size_t data_size)
 {
+
 	uint8_t symbol_num = crps_runLength_encode_makeSymbolArray( data_ptr,  data_size);
 	uint8_t freq_num   = crps_runLength_encode_makeFreqArray( data_ptr, data_size);
-
+/*
 	assert(symbol_num != freq_num);
 
 	data_size = symbol_num + freq_num;
 	(void)crps_runLength_shuffleSymbolAndFreq(data_ptr, data_size);
-
+*/
 	return data_size;
 }
 
@@ -131,7 +145,7 @@ bool cprs_runLength_decode(uint8_t * data_ptr)
 
 bool cprs_runLength_deinit()
 {
-	free(cprs_rl_p.element);
+	free(cprs_rl_p.symbol);
 	free(cprs_rl_p.freq);
 	return true;
 }
