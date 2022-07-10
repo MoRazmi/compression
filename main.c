@@ -51,7 +51,6 @@ int main()
 	data_size = new_decoded_size;
     printf(" data size %ld \n", data_size );
 
-
     for(int i =0; i < data_size; i++)
 	{
 	    printf(" data after compression deccode 0x%02X \n", data_ptr[i] );

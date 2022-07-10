@@ -42,6 +42,9 @@ bool cprs_runLength_init( size_t data_size)
 
 /**
  * @brief static inline helper to create the symbol array and calculate the frequency
+ * @param [in] *data_ptr data buffer
+ * @param [in] size_t size of data buffer
+ * @retval the size of Run Length algorithm symbols
  */
 static inline size_t crps_runLength_encode_makeSymbolArray(const uint8_t * data_ptr, const size_t data_size)
 {
@@ -70,6 +73,9 @@ static inline size_t crps_runLength_encode_makeSymbolArray(const uint8_t * data_
 
 /**
  * @brief static inline helper to shuffle the symbol and frequency together
+ * @param [out] data_ptr to pass for encode
+ * @param [in] the size of encoded data
+ * @retval true if successful
  */
  static inline bool crps_runLength_shuffleSymbolAndFreq(uint8_t * data_ptr, size_t data_size)
 {
@@ -86,8 +92,10 @@ static inline size_t crps_runLength_encode_makeSymbolArray(const uint8_t * data_
 
 /**
  * @brief static inline helper to extract symbol and frequency
+ * @param [in] data_ptr including symbol and frequency should be distinguished
+ * @param [in] size of encoded data_ptr
  */
-static inline bool crps_runLength_decode_distSymbolArray( uint8_t * data_ptr, size_t data_size)
+static inline bool crps_runLength_decode_distSymbolArray( const uint8_t * data_ptr, const size_t data_size)
 {
 	for(uint8_t i = 0; i < data_size; i++ )
 	{
@@ -103,6 +111,12 @@ static inline bool crps_runLength_decode_distSymbolArray( uint8_t * data_ptr, si
 	return true;
 }
 
+/**
+ * @brief Recreate the data buffer for decode
+ * @param [out] the final data_ptr to pass for decode
+ * @param [in] the encoded size of buffer
+ * @retval size of the decoded buffer
+ */
 uint8_t crps_runLength_decode_recreateBuffer( uint8_t * data_ptr,size_t  data_size)
 {
 	uint8_t new_size = 0;
@@ -136,7 +150,9 @@ size_t cprs_runLength_encode(uint8_t * data_ptr, size_t data_size)
 }
 
 /**
- * Run-Length algorithm decode data
+ * @brief Run-Length algorithm decode data
+ * @param[out] encoded data buffer should be decoded
+ * @param[in] size of encoded data buffer
  */
 size_t cprs_runLength_decode(uint8_t * data_ptr, size_t data_size)
 {
@@ -147,6 +163,9 @@ size_t cprs_runLength_decode(uint8_t * data_ptr, size_t data_size)
 	return new_data;
 }
 
+/**
+ * @brief deinitializes Run-Length algorithm decode data
+ */
 bool cprs_runLength_deinit()
 {
 	free(cprs_rl_p.symbol);
