@@ -24,6 +24,9 @@ int main()
 	size_t data_size = 24;
 
 
+/**************************************************************************
+ * * Select the compression algorithm
+ *************************************************************************/
 
 #if CURRENT_ALGORITHM == USE_RUN_LENGTH_ALGORITHM
 	bool   (*cprs_init)(uint8_t *,size_t) = &cprs_runLength_init;
@@ -38,9 +41,9 @@ int main()
 #endif
 
 
-	/****************************************************
-	 * Check the compress algorithm encode
-	 ****************************************************/
+/**************************************************************************
+ * Check the compress algorithm encode
+ *************************************************************************/
 
 	bool ini_state = cprs_init(data_ptr,data_size);
 	assert(ini_state);
@@ -49,6 +52,7 @@ int main()
 	new_encode_size = cprs_encode(data_ptr, data_size);
 	data_size = new_encode_size;
 
+    printf(" data buffer size after compression encode %ld \n", data_size );
 	for(int i =0; i < data_size; i++)
 	{
 	    printf(" data after compression encode 0x%02X \n", data_ptr[i] );
@@ -58,9 +62,9 @@ int main()
 	assert(deini_state);
 
 
-	/****************************************************
-	 * Check the compress algorithm decode
-	 ****************************************************/
+/**************************************************************************
+ * Check the compress algorithm decode
+ *************************************************************************/
 
 	bool reini_state = cprs_init(data_ptr,data_size);
     assert(reini_state);
@@ -69,11 +73,11 @@ int main()
 
     new_decoded_size = cprs_decode(data_ptr, data_size);
 	data_size = new_decoded_size;
-    printf(" data size %ld \n", data_size );
 
+    printf(" data buffer size after decode %ld \n", data_size );
     for(int i =0; i < data_size; i++)
 	{
-	    printf(" data after compression deccode 0x%02X \n", data_ptr[i] );
+	    printf(" data after  decode 0x%02X \n", data_ptr[i] );
 	}
 
 
