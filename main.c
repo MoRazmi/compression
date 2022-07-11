@@ -8,8 +8,11 @@
 #include <stddef.h>
 #include <assert.h>
 
-#include "compress_manager.h"
 #include "compress_run_length.h"
+
+#define USE_RUN_LENGTH_ALGORITH (1)
+#define USE_HUFFMAN_ALGORITHM   (2)
+#define CURRENT_ALGORITHM        (USE_RUN_LENGTH_ALGORITHM)
 
 int main()
 {
@@ -19,20 +22,25 @@ int main()
 
 	size_t data_size = 24;
 
-	enum  cprs_method cprs_method_s;
-	cprs_method_s = cprs_run_length;
-	cprs_setAlgType(cprs_method_s);
+
+
+#if CURRENT_ALGORITHM == USE_RUN_LENGTH_ALGORITHM
+	bool (*cprs_init)(size_t) = &cprs_runLength_init;
+	size_t (*cprs_encode)(uint8_t *, size_t) = &cprs_runLength_encode;
+	size_t (*cprs_decode)(uint8_t *, size_t) = &cprs_runLength_decode;
+	bool   (*cprs_deinit)() = &cprs_runLength_deinit;
+#endif
 
 
 	/****************************************************
 	 * Check the compress algorithm encode
 	 ****************************************************/
 
-	bool ini_state = cprs_runLength_init(data_size);
+	bool ini_state = cprs_init(data_size);
 	assert(ini_state);
 
 	size_t new_encode_size;
-	new_encode_size = cprs_runLength_encode(data_ptr, data_size);
+	new_encode_size = cprs_encode(data_ptr, data_size);
 	data_size = new_encode_size;
 
 	for(int i =0; i < data_size; i++)
@@ -40,7 +48,7 @@ int main()
 	    printf(" data after compression encode 0x%02X \n", data_ptr[i] );
 	}
 
-	bool deini_state = cprs_runLength_deinit();
+	bool deini_state = cprs_deinit();
 	assert(deini_state);
 
 
@@ -48,12 +56,12 @@ int main()
 	 * Check the compress algorithm decode
 	 ****************************************************/
 
-	bool reini_state = cprs_runLength_init(data_size);
+	bool reini_state = cprs_init(data_size);
     assert(reini_state);
 
     size_t new_decoded_size;
 
-    new_decoded_size = cprs_runLength_decode(data_ptr, data_size);
+    new_decoded_size = cprs_decode(data_ptr, data_size);
 	data_size = new_decoded_size;
     printf(" data size %ld \n", data_size );
 
@@ -63,7 +71,7 @@ int main()
 	}
 
 
-	bool redeini_state = cprs_runLength_deinit();
+	bool redeini_state = cprs_deinit();
 	assert(redeini_state);
 
 	return 0;
