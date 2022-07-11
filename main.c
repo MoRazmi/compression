@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <assert.h>
 
+#include "compress_manager.h"
 #include "compress_run_length.h"
 
 int main()
@@ -17,6 +18,11 @@ int main()
 	                0x56, 0x45, 0x56, 0x56, 0x56, 0x09, 0x09, 0x09 };
 
 	size_t data_size = 24;
+
+	enum  cprs_method cprs_method_s;
+	cprs_method_s = cprs_run_length;
+	cprs_setAlgType(cprs_method_s);
+
 
 	/****************************************************
 	 * Check the compress algorithm encode
