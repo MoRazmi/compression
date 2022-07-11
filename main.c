@@ -9,9 +9,10 @@
 #include <assert.h>
 
 #include "compress_run_length.h"
+#include "compress_huffman.h"
 
-#define USE_RUN_LENGTH_ALGORITH (1)
-#define USE_HUFFMAN_ALGORITHM   (2)
+#define USE_RUN_LENGTH_ALGORITH  (1)
+#define USE_HUFFMAN_ALGORITHM    (2)
 #define CURRENT_ALGORITHM        (USE_RUN_LENGTH_ALGORITHM)
 
 int main()
@@ -25,10 +26,15 @@ int main()
 
 
 #if CURRENT_ALGORITHM == USE_RUN_LENGTH_ALGORITHM
-	bool (*cprs_init)(size_t) = &cprs_runLength_init;
+	bool   (*cprs_init)(uint8_t *,size_t) = &cprs_runLength_init;
 	size_t (*cprs_encode)(uint8_t *, size_t) = &cprs_runLength_encode;
 	size_t (*cprs_decode)(uint8_t *, size_t) = &cprs_runLength_decode;
 	bool   (*cprs_deinit)() = &cprs_runLength_deinit;
+#elif CURRENT_ALGORITHM == USE_HUFFMAN_ALGORITHM
+	bool   (*cprs_init)(uint8_t *,size_t) = &cprs_huffman_init;
+    size_t (*cprs_encode)(uint8_t *, size_t) = &cprs_huffman_encode;
+    size_t (*cprs_decode)(uint8_t *, size_t) = &cprs_huffman_decode;
+    bool   (*cprs_deinit)() = &cprs_huffman_deinit;
 #endif
 
 
@@ -36,7 +42,7 @@ int main()
 	 * Check the compress algorithm encode
 	 ****************************************************/
 
-	bool ini_state = cprs_init(data_size);
+	bool ini_state = cprs_init(data_ptr,data_size);
 	assert(ini_state);
 
 	size_t new_encode_size;
@@ -56,7 +62,7 @@ int main()
 	 * Check the compress algorithm decode
 	 ****************************************************/
 
-	bool reini_state = cprs_init(data_size);
+	bool reini_state = cprs_init(data_ptr,data_size);
     assert(reini_state);
 
     size_t new_decoded_size;

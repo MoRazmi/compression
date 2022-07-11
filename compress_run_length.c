@@ -32,7 +32,7 @@ cprs_runLength_privateVariable cprs_rl_p;
  * @retval true if successful
  * @retval false otherwise
  */
-bool cprs_runLength_init( size_t data_size)
+bool cprs_runLength_init( uint8_t * data_ptr,size_t data_size)
 {
 	cprs_rl_p.symbol = (uint8_t*)calloc(data_size, sizeof(uint8_t));
 	cprs_rl_p.freq = (uint8_t*)calloc(data_size, sizeof(uint8_t));
